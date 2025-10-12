@@ -1,4 +1,4 @@
-FROM http://quay.io/jupyterhub/k8s-singleuser-sample:4.3.0
+FROM quay.io/jupyterhub/k8s-singleuser-sample:4.3.0
 
 USER root
 
