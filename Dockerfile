@@ -1,4 +1,4 @@
-FROM quay.io/jupyterhub/k8s-singleuser-sample:4.3.0
+FROM pangeo/pangeo-notebook:2025.08.14
 
 USER root
 
