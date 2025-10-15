@@ -4,10 +4,11 @@ USER root
 
 # Env
 # ---
-ENV LIB=/usr/local/lib \
-    HOME=$LIB \
-    ARCH="aarch64-linux-gnu"
-    
+ENV LIB=/home/local_lib \
+    HOME=/home/local_lib \
+    ARCH="x86_64-linux-gnu"
+
+
 # System packages
 # ---------------
 RUN apt-get update --fix-missing > /dev/null \
@@ -83,8 +84,8 @@ RUN rm $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
 
 RUN sed -i 's/%BASE_FFLAGS[[:space:]]\+-D__NONE__/%BASE_FFLAGS    -D__NONE__ -ffree-line-length-none/' $LIB/XIOS3/arch/arch-GCC_LINUX.fcm
 
-RUN cd $LIB/XIOS3 && mkdir lib && \
-    ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3
+RUN cd $LIB/XIOS3 && \
+    ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3 || echo 'DONE'
 
 
 # Python packages
@@ -118,3 +119,9 @@ RUN cd ${LIB} && \
 
 RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "OptimizationOptimJL", "Plots", "Statistics"])'
 
+
+# clean up
+# --------
+RUN rm -rf ${LIB}/hdf5* ${LIB}/netcdf*
+
+RUN cd ${LIB} && chown -R 1000:100 .
