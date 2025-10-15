@@ -8,6 +8,7 @@ ENV LIB=/home/local_lib \
     HOME=/home/local_lib \
     ARCH="x86_64-linux-gnu"
 
+RUN mkdir -p ${LIB}
 
 # System packages
 # ---------------
