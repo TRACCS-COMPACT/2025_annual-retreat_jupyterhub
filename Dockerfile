@@ -1,13 +1,12 @@
-FROM quay.io/jupyterhub/k8s-singleuser-sample:4.3.0
+FROM quay.io/jupyter/base-notebook
 
 USER root
 
 # Env
 # ---
-ENV HOME=/home/jovyan \
-    LIB=$HOME/local_lib \
-    ARCH="x86_64-linux-gnu" \
-    PYLIB=$HOME/.local_python
+ENV LIB=/usr/local/lib \
+    HOME=$LIB \
+    ARCH="aarch64-linux-gnu"
     
 RUN mkdir $LIB
 
@@ -56,40 +55,6 @@ RUN cd ${LIB} && \
     make -j"$(nproc)" && make install
 
 
-# XIOS2
-# -----
-RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other \
-    --config-option servers:global:http-max-connections=1 \
-    --config-option servers:global:http-timeout=120 \
-    https://forge.ipsl.jussieu.fr/ioserver/svn/XIOS2/trunk ${LIB}/XIOS2
-
-RUN rm $LIB/XIOS2/arch/arch-GCC_LINUX.env && \
-    echo "export INC_DIR=/usr/lib/$ARCH/include" >> $LIB/XIOS2/arch/arch-GCC_LINUX.env && \
-    echo "export LIB_DIR=/usr/lib/$ARCH/lib" >> $LIB/XIOS2/arch/arch-GCC_LINUX.env && \
-    echo "export ZLIB_DIR=/usr/lib/" >> $LIB/XIOS2/arch/arch-GCC_LINUX.env && \
-    echo "export OPENMPI_INC_DIR=/usr/lib/$ARCH/openmpi/include" >> $LIB/XIOS2/arch/arch-GCC_LINUX.env && \
-    echo "export OPENMPI_LIB_DIR=/usr/lib/$ARCH/openmpi/lib" >> $LIB/XIOS2/arch/arch-GCC_LINUX.env
-
-RUN rm $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'NETCDF_INCDIR="-I $INC_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'NETCDF_LIBDIR="-L $LIB_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'NETCDF_LIB="-lnetcdff -lnetcdf"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'MPI_INCDIR="-I $OPENMPI_INC_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'MPI_LIBDIR="-L $OPENMPI_LIB_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'MPI_LIB="-lmpi"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'HDF5_INCDIR="-I $INC_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'HDF5_LIBDIR="-Wl,-rpath,$LIB_DIR -L$LIB_DIR -L $ZLIB_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'HDF5_LIB="-lhdf5_hl -lhdf5 -lz"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'BOOST_INCDIR="-I $BOOST_INC_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'BOOST_LIBDIR="-L $BOOST_LIB_DIR"' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path && \
-    echo 'BOOST_LIB=""' >> $LIB/XIOS2/arch/arch-GCC_LINUX.path
-
-RUN sed -i 's/%BASE_FFLAGS[[:space:]]\+-D__NONE__/%BASE_FFLAGS    -D__NONE__ -ffree-line-length-none/' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
-
-RUN cd $LIB/XIOS2 && \
-    ./make_xios --full --prod --arch GCC_LINUX
-
-
 # XIOS3
 # -----
 RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other \
@@ -97,19 +62,36 @@ RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch
     --config-option servers:global:http-timeout=120 \
     https://forge.ipsl.jussieu.fr/ioserver/svn/XIOS3/trunk ${LIB}/XIOS3
 
-RUN cp $LIB/XIOS2/arch/arch-GCC_LINUX.path $LIB//XIOS3/arch/ && \
-    cp $LIB/XIOS2/arch/arch-GCC_LINUX.fcm $LIB//XIOS3/arch/ && \
-    cp $LIB/XIOS2/arch/arch-GCC_LINUX.env $LIB//XIOS3/arch/
+RUN rm $LIB/XIOS3/arch/arch-GCC_LINUX.env && \
+    echo "export INC_DIR=/usr/lib/$ARCH/include" >> $LIB/XIOS3/arch/arch-GCC_LINUX.env && \
+    echo "export LIB_DIR=/usr/lib/$ARCH/lib" >> $LIB/XIOS3/arch/arch-GCC_LINUX.env && \
+    echo "export ZLIB_DIR=/usr/lib/" >> $LIB/XIOS3/arch/arch-GCC_LINUX.env && \
+    echo "export OPENMPI_INC_DIR=/usr/lib/$ARCH/openmpi/include" >> $LIB/XIOS3/arch/arch-GCC_LINUX.env && \
+    echo "export OPENMPI_LIB_DIR=/usr/lib/$ARCH/openmpi/lib" >> $LIB/XIOS3/arch/arch-GCC_LINUX.env
 
-RUN cd $LIB/XIOS3 && \
-    ./make_xios --full --prod --arch GCC_LINUX
+RUN rm $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'NETCDF_INCDIR="-I $INC_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'NETCDF_LIBDIR="-L $LIB_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'NETCDF_LIB="-lnetcdff -lnetcdf"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'MPI_INCDIR="-I $OPENMPI_INC_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'MPI_LIBDIR="-L $OPENMPI_LIB_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'MPI_LIB="-lmpi"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'HDF5_INCDIR="-I $INC_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'HDF5_LIBDIR="-Wl,-rpath,$LIB_DIR -L$LIB_DIR -L $ZLIB_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'HDF5_LIB="-lhdf5_hl -lhdf5 -lz"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'BOOST_INCDIR="-I $BOOST_INC_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'BOOST_LIBDIR="-L $BOOST_LIB_DIR"' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
+    echo 'BOOST_LIB=""' >> $LIB/XIOS3/arch/arch-GCC_LINUX.path
+
+RUN sed -i 's/%BASE_FFLAGS[[:space:]]\+-D__NONE__/%BASE_FFLAGS    -D__NONE__ -ffree-line-length-none/' $LIB/XIOS3/arch/arch-GCC_LINUX.fcm
+
+RUN cd $LIB/XIOS3 && mkdir lib && \
+    ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3
 
 
 # Python packages
 # ---------------
-RUN python3 -m venv $PYLIB
-ENV PATH="${PYLIB}/bin:$PATH"
-RUN pip install matplotlib numpy mpi4py Cython flax optax tqdm jax jaxlib notebook jupyterlab ipykernel ipywidgets pytest
+RUN pip install matplotlib numpy mpi4py Cython flax optax tqdm jax jaxlib notebook jupyterlab ipykernel ipywidgets
 
 
 # Eophis
@@ -120,7 +102,6 @@ RUN git clone --branch v1.0.1 https://github.com/meom-group/eophis ${LIB}/eophis
 
 # OASIS
 # -----
-ENV HOME=$LIB
 RUN cd ${LIB} && \
     git clone https://gitlab.com/cerfacs/oasis3-mct.git ${LIB}/oasis3-mct && \
     cd ${LIB}/oasis3-mct/util/make_dir && \
@@ -131,7 +112,6 @@ RUN cd ${LIB} && \
 
 # julia
 # -----
-ENV HOME=/home/jovyan
 RUN cd ${LIB} && \
     wget https://julialang-s3.julialang.org/bin/linux/x64/1.11/julia-1.11.1-linux-x86_64.tar.gz && \
     tar -xzf julia-1.11.1-linux-x86_64.tar.gz -C /opt/ && \
@@ -140,20 +120,3 @@ RUN cd ${LIB} && \
 
 RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "OptimizationOptimJL", "Plots", "Statistics"])'
 
-
-# Cleanup
-# -------
-RUN rm -rf ${LIB}/hdf5* ${LIB}/netcdf*
-
-# bashrc
-# ------
-RUN echo "# Python Env\n############" >> ~/.bashrc && \
-    echo "source $PYLIB/bin/activate" >> ~/.bashrc && \
-    echo "source $LIB/oasis3-mct/BLD/python/init.sh" >> ~/.bashrc && \
-    echo "\n# Easier Life\n#############" >> ~/.bashrc && \
-    echo "alias ls='ls --color=auto'" >> ~/.bashrc && \
-    echo "alias grep='grep --color=auto -H'\n" >> ~/.bashrc && \
-    echo "\n# Permissions\n#############" >> ~/.bashrc && \
-    echo "export OMPI_ALLOW_RUN_AS_ROOT=1" >> ~/.bashrc && \
-    echo "export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1" >> ~/.bashrc && \
-    echo "cd $HOME" >> ~/.bashrc
