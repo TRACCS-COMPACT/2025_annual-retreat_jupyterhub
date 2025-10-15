@@ -8,8 +8,6 @@ ENV LIB=/usr/local/lib \
     HOME=$LIB \
     ARCH="aarch64-linux-gnu"
     
-RUN mkdir $LIB
-
 # System packages
 # ---------------
 RUN apt-get update --fix-missing > /dev/null \
