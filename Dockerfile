@@ -130,7 +130,7 @@ RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "
 RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other \
     --config-option servers:global:http-max-connections=1 \
     --config-option servers:global:http-timeout=120 \
-    https://forge.ipsl.jussieu.fr/ioserver/svn/XIOS3/trunk ${LIB}/XIOS2
+    https://forge.ipsl.jussieu.fr/ioserver/svn/XIOS2/trunk ${LIB}/XIOS2
 
 RUN cp $LIB/XIOS3/arch/arch-GCC_LINUX.* $LIB/XIOS2/arch/
 
