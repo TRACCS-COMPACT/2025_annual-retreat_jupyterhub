@@ -125,6 +125,22 @@ ENV JULIA_DEPOT_PATH=/usr/local/lib/julia
 RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "OptimizationOptimJL", "Plots", "Statistics"])'
 
 
+# XIOS2
+# -----
+RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other \
+    --config-option servers:global:http-max-connections=1 \
+    --config-option servers:global:http-timeout=120 \
+    https://forge.ipsl.jussieu.fr/ioserver/svn/XIOS3/trunk ${LIB}/XIOS2
+
+RUN cp $LIB/XIOS3/arch/arch-GCC_LINUX.* $LIB/XIOS2/arch/
+
+RUN sed -i 's/%CCOMPILER[[:space:]]\+mpicc/%CCOMPILER    mpicc -fPIC\' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
+RUN sed -i 's/%FCOMPILER[[:space:]]\+mpif90/%FCOMPILER     mpif90 -fPIC\' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
+
+RUN cd $LIB/XIOS2 && \
+    ./make_xios --full --prod --arch GCC_LINUX --job 3 || echo 'DONE'
+
+
 # clean up
 # --------
 RUN rm -rf ${LIB}/hdf5* ${LIB}/netcdf*
