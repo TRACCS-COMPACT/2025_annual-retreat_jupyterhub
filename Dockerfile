@@ -4,11 +4,8 @@ USER root
 
 # Env
 # ---
-ENV LIB=/home/local_lib \
-    HOME=/home/local_lib \
+ENV LIB=/usr/local/lib \
     ARCH="x86_64-linux-gnu"
-
-RUN mkdir -p ${LIB}
 
 # System packages
 # ---------------
@@ -88,6 +85,10 @@ RUN sed -i 's/%BASE_FFLAGS[[:space:]]\+-D__NONE__/%BASE_FFLAGS    -D__NONE__ -ff
 RUN cd $LIB/XIOS3 && \
     ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3 || echo 'DONE'
 
+RUN cd $LIB/XIOS3/bin && \
+mpif90 -o xios_server.exe /$LIB/XIOS3/obj/server_main.o  -L/$LIB/XIOS3/lib -I__fcm__xios_server -lxios -Wl,-rpath,/$LIB/XIOS3/lib -L /usr/lib/$ARCH/lib -Wl,-rpath,/usr/lib/$ARCH/lib -L/usr/lib/$ARCH/lib -L /usr/lib/ -L /usr/lib/$ARCH/openmpi/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz -lmpi -lstdc++ && \
+mpif90 -o generic_testcase.exe /$LIB/XIOS3/obj/generic_testcase.o -L/$LIB/XIOS3/lib -I__fcm__generic_testcase -lxios -Wl,-rpath,/$LIB/XIOS3/lib -L /usr/lib/$ARCH/lib -Wl,-rpath,/usr/lib/$ARCH/lib -L/usr/lib/$ARCH/lib -L /usr/lib/ -L /usr/lib/$ARCH/openmpi/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz -lmpi -lstdc++
+
 
 # Python packages
 # ---------------
@@ -102,12 +103,14 @@ RUN git clone --branch v1.0.1 https://github.com/meom-group/eophis ${LIB}/eophis
 
 # OASIS
 # -----
+ENV HOME=/usr/local/lib
 RUN cd ${LIB} && \
     git clone https://gitlab.com/cerfacs/oasis3-mct.git ${LIB}/oasis3-mct && \
     cd ${LIB}/oasis3-mct/util/make_dir && \
     git checkout OASIS3-MCT_5.0 && \
     echo "include ${LIB}/eophis/.github/workflows/make.gnu" > make.inc && \
     make -f TopMakefileOasis3 pyoasis
+ENV HOME=/home/jovyan
 
 
 # julia
@@ -125,4 +128,6 @@ RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "
 # --------
 RUN rm -rf ${LIB}/hdf5* ${LIB}/netcdf*
 
-RUN cd ${LIB} && chown -R 1000:100 .
+# permissions
+# -----------
+RUN cd $LIB && chown -R 1000:100 .
