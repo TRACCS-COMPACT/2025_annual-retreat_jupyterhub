@@ -134,8 +134,8 @@ RUN svn co --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch
 
 RUN cp $LIB/XIOS3/arch/arch-GCC_LINUX.* $LIB/XIOS2/arch/
 
-RUN sed -i 's/%CCOMPILER[[:space:]]\+mpicc/%CCOMPILER    mpicc -fPIC\' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
-RUN sed -i 's/%FCOMPILER[[:space:]]\+mpif90/%FCOMPILER     mpif90 -fPIC\' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
+RUN sed -i 's/%CCOMPILER[[:space:]]\+mpicc/%CCOMPILER    mpicc -fPIC/' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
+RUN sed -i 's/%FCOMPILER[[:space:]]\+mpif90/%FCOMPILER     mpif90 -fPIC/' $LIB/XIOS2/arch/arch-GCC_LINUX.fcm
 
 RUN cd $LIB/XIOS2 && \
     ./make_xios --full --prod --arch GCC_LINUX --job 3 || echo 'DONE'
