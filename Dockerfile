@@ -147,4 +147,5 @@ RUN rm -rf ${LIB}/hdf5* ${LIB}/netcdf*
 
 # permissions
 # -----------
+ENV LD_LIBRARY_PATH =/usr/local/lib/oasis3-mct/BLD/lib:/usr/local/lib/XIOS3/lib
 RUN cd $LIB && chown -R 1000:100 .
