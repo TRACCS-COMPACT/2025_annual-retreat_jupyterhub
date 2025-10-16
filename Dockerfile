@@ -83,11 +83,7 @@ RUN rm $LIB/XIOS3/arch/arch-GCC_LINUX.path && \
 RUN sed -i 's/%BASE_FFLAGS[[:space:]]\+-D__NONE__/%BASE_FFLAGS    -D__NONE__ -ffree-line-length-none/' $LIB/XIOS3/arch/arch-GCC_LINUX.fcm
 
 RUN cd $LIB/XIOS3 && \
-    ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3 || echo 'DONE'
-
-RUN cd $LIB/XIOS3/bin && \
-mpif90 -o xios_server.exe /$LIB/XIOS3/obj/server_main.o  -L/$LIB/XIOS3/lib -I__fcm__xios_server -lxios -Wl,-rpath,/$LIB/XIOS3/lib -L /usr/lib/$ARCH/lib -Wl,-rpath,/usr/lib/$ARCH/lib -L/usr/lib/$ARCH/lib -L /usr/lib/ -L /usr/lib/$ARCH/openmpi/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz -lmpi -lstdc++ && \
-mpif90 -o generic_testcase.exe /$LIB/XIOS3/obj/generic_testcase.o -L/$LIB/XIOS3/lib -I__fcm__generic_testcase -lxios -Wl,-rpath,/$LIB/XIOS3/lib -L /usr/lib/$ARCH/lib -Wl,-rpath,/usr/lib/$ARCH/lib -L/usr/lib/$ARCH/lib -L /usr/lib/ -L /usr/lib/$ARCH/openmpi/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz -lmpi -lstdc++
+    ./make_xios --full --dynamic --prod --arch GCC_LINUX --job 3
 
 
 # Python packages
@@ -121,6 +117,7 @@ RUN cd ${LIB} && \
     ln -s /opt/julia-1.11.1/bin/julia /usr/local/bin/julia && \
     rm julia-1.11.1-linux-x86_64.tar.gz
 
+ENV JULIA_DEPOT_PATH=/usr/local/lib/julia
 RUN julia -e 'using Pkg; Pkg.add.(["IJulia", "OrdinaryDiffEq", "Optimization", "OptimizationOptimJL", "Plots", "Statistics"])'
 
 
