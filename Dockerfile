@@ -143,14 +143,7 @@ RUN cd $LIB/XIOS2 && \
 
 # Modifs pour Anatole
 # -------------------
-RUN sed -i \
-'/try:/,/print(f"Library {lib_path} successfully loaded.")/c   \
-try:\n    CDLL("/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0", mode=os.RTLD_GLOBAL)\n    \
-CDLL("/usr/lib/x86_64-linux-gnu/libnetcdf.so", mode=os.RTLD_GLOBAL)\n    \
-CDLL("/usr/lib/x86_64-linux-gnu/libstdc++.so.6", mode=os.RTLD_GLOBAL)\n\n    \
-lib = CDLL(lib_path)\n    \
-# print(f"Library {lib_path} successfully loaded.")' \
-/usr/local/lib/XIOS3/src/interface/python/xios/config.py
+RUN sed -i '/try:/,/print(f"Library {lib_path} successfully loaded.")/c\try:\n    CDLL("/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0", mode=os.RTLD_GLOBAL)\n    CDLL("/usr/lib/x86_64-linux-gnu/libnetcdf.so", mode=os.RTLD_GLOBAL)\n    CDLL("/usr/lib/x86_64-linux-gnu/libstdc++.so.6", mode=os.RTLD_GLOBAL)\n\n    lib = CDLL(lib_path)\n    # print(f"Library {lib_path} successfully loaded.")' /usr/local/lib/XIOS3/src/interface/python/xios/config.py
 
 
 # clean up
